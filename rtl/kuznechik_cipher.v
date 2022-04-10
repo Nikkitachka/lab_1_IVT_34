@@ -38,8 +38,11 @@ initial begin
     $readmemh("L_251.mem",L_mul_251_mem);
 end
 
-  reg [1:0] state;  
-  reg [1:0] next_state;
+  reg [3:0] round_cnt;
+  reg [3:0] l_phase_cnt;
+
+  reg [2:0] state;  
+  reg [2:0] next_state;
 
   localparam IDLE_S      = 3'b000;
   localparam KEY_PHASE_S = 3'b001;  
@@ -48,8 +51,11 @@ end
   localparam FINISH_S    = 3'b100;
 
   always @( posedge clk_i or negedge resetn_i )
-    if( !resetn_i )
-      state <= IDLE_S;
+    if( !resetn_i ) begin
+      state       <= IDLE_S;
+      round_cnt   <= 'b0;
+      l_phase_cnt <= 'b0;
+    end
     else
       state <= next_state;
 
