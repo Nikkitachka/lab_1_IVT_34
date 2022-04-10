@@ -26,8 +26,13 @@ module kuznechik_cipher(
   reg [7:0] L_mul_251_mem [0:255];
 
   initial begin
+<<<<<<< HEAD
     $readmemh("keys.mem",key_mem );         // память ключей
     $readmemh("S_box.mem",S_box_mem );      // память ключей
+=======
+    $readmemh("keys.mem",key_mem );
+    $readmemh("S_box.mem",S_box_mem );
+>>>>>>> 652b854f0a5710831852145c39c3910637dabb0d
 
     $readmemh("L_16.mem", L_mul_16_mem );
     $readmemh("L_32.mem", L_mul_32_mem );
@@ -146,8 +151,20 @@ module kuznechik_cipher(
 
         FINISH_S:
           begin
+<<<<<<< HEAD
             data_o  <= data;
             valid_o <= 'b1;
+=======
+            if( request_i ) 
+              next_state = IDLE_S;
+            else if( ack_i )
+              next_state = KEY_PHASE_S;
+          end
+
+        default:
+          begin
+            next_state = IDLE_S;
+>>>>>>> 652b854f0a5710831852145c39c3910637dabb0d
           end
       endcase
   end
