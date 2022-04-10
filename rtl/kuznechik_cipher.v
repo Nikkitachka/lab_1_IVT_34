@@ -66,8 +66,10 @@ end
       case( state )
         IDLE_S:
           begin
-          //  if( ... )
+            if( request_i ) begin
+              round_cnt <= 'b0;
               next_state = KEY_PHASE_S;
+            end
           end
 
         KEY_PHASE_S:
