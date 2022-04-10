@@ -1,16 +1,16 @@
 module kuznechik_cipher(
-    input               clk_i,      // РўР°РєС‚РѕРІС‹Р№ СЃРёРіРЅР°Р»
-                        resetn_i,   // РЎРёРЅС…СЂРѕРЅРЅС‹Р№ СЃРёРіРЅР°Р» СЃР±СЂРѕСЃР° СЃ Р°РєС‚РёРІРЅС‹Рј СѓСЂРѕРІРЅРµРј LOW
-                        request_i,  // РЎРёРіРЅР°Р» Р·Р°РїСЂРѕСЃР° РЅР° РЅР°С‡Р°Р»Рѕ С€РёС„СЂРѕРІР°РЅРёСЏ
-                        ack_i,      // РЎРёРіРЅР°Р» РїРѕРґС‚РІРµСЂР¶РґРµРЅРёСЏ РїСЂРёРµРјР° Р·Р°С€РёС„СЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С…
-                [127:0] data_i,     // РЁРёС„СЂСѓРµРјС‹Рµ РґР°РЅРЅС‹Рµ
+    input               clk_i,      // Тактовый сигнал
+                        resetn_i,   // Синхронный сигнал сброса с активным уровнем LOW
+                        request_i,  // Сигнал запроса на начало шифрования
+                        ack_i,      // Сигнал подтверждения приема зашифрованных данных
+                [127:0] data_i,     // Шифруемые данные
 
-    output              busy_o,     // РЎРёРіРЅР°Р», СЃРѕРѕР±С‰Р°СЋС‰РёР№ Рѕ РЅРµРІРѕР·РјРѕР¶РЅРѕСЃС‚Рё РїСЂРёС‘РјР°
-                                    // РѕС‡РµСЂРµРґРЅРѕРіРѕ Р·Р°РїСЂРѕСЃР° РЅР° С€РёС„СЂРѕРІР°РЅРёРµ, РїРѕСЃРєРѕР»СЊРєСѓ
-                                    // РјРѕРґСѓР»СЊ РІ РїСЂРѕС†РµСЃСЃРµ С€РёС„СЂРѕРІР°РЅРёСЏ РїСЂРµРґС‹РґСѓС‰РµРіРѕ
-                                    // Р·Р°РїСЂРѕСЃР°
-           reg          valid_o,    // РЎРёРіРЅР°Р» РіРѕС‚РѕРІРЅРѕСЃС‚Рё Р·Р°С€РёС„СЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С…
-           reg  [127:0] data_o      // Р—Р°С€РёС„СЂРѕРІР°РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ
+    output              busy_o,     // Сигнал, сообщающий о невозможности приёма
+                                    // очередного запроса на шифрование, поскольку
+                                    // модуль в процессе шифрования предыдущего
+                                    // запроса
+           reg          valid_o,    // Сигнал готовности зашифрованных данных
+           reg  [127:0] data_o      // Зашифрованные данные
 );
 
 reg [127:0] key_mem [0:9];
@@ -38,5 +38,71 @@ initial begin
     $readmemh("L_251.mem",L_mul_251_mem);
 end
 
+  reg [1:0] state;  
+  reg [1:0] next_state;
+
+  localparam IDLE_S      = 3'b000;
+  localparam KEY_PHASE_S = 3'b001;  
+  localparam S_PHASE_S   = 3'b010;
+  localparam L_PHASE_S   = 3'b011;
+  localparam FINISH_S    = 3'b100;
+
+  always @( posedge clk_i or negedge resetn_i )
+    if( !resetn_i )
+      state <= IDLE_S;
+    else
+      state <= next_state;
+
+  always @( * )
+    begin
+      next_state = state;
+
+      case( state )
+        IDLE_S:
+          begin
+          //  if( ... )
+              next_state = KEY_PHASE_S;
+          end
+
+        KEY_PHASE_S:
+          begin
+         //   if( ... ) 
+              next_state = S_PHASE_S;
+         //   else
+         //     if( )
+                next_state = FINISH_S; 
+          end
+
+        S_PHASE_S:
+          begin
+        //    if( ... )
+              next_state = L_PHASE_S;
+          end
+
+        L_PHASE_S:
+          begin
+         //   if( ... ) 
+              next_state = KEY_PHASE_S;
+         //   else
+         //     if( )
+                next_state = L_PHASE_S; 
+          end
+
+        FINISH_S:
+          begin
+         //   if( ... ) 
+              next_state = IDLE_S;
+         //   else
+         //     if( )
+                next_state = KEY_PHASE_S; 
+          end
+
+        default:
+          begin
+            next_state = IDLE_S;
+          end
+ 
+      endcase
+    end
 
 endmodule
