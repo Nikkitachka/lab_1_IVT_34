@@ -41,6 +41,8 @@ end
   reg [3:0] round_cnt;
   reg [3:0] l_phase_cnt;
 
+  localparam ROUND_N = 'd10;
+
   reg [2:0] state;  
   reg [2:0] next_state;
 
@@ -74,11 +76,10 @@ end
 
         KEY_PHASE_S:
           begin
-         //   if( ... ) 
+            if( round_cnt < ROUND_N - 1 ) 
               next_state = S_PHASE_S;
-         //   else
-         //     if( )
-                next_state = FINISH_S; 
+            else 
+              next_state = FINISH_S; 
           end
 
         S_PHASE_S:
