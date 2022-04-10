@@ -84,8 +84,8 @@ end
 
         S_PHASE_S:
           begin
-        //    if( ... )
-              next_state = L_PHASE_S;
+            next_state = L_PHASE_S;
+            round_cnt  = round_cnt + 'd1;
           end
 
         L_PHASE_S:
